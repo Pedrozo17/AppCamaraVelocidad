@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Location from 'expo-location';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ReportScreen({ navigation, route }) {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
@@ -198,9 +199,15 @@ export default function ReportScreen({ navigation, route }) {
         street: form.street.trim(),
         timestamp: new Date().toISOString(),
         speed_limit: form.speed_limit ? Number(form.speed_limit) : null,
+        photo: capturedPhoto || null,
         reported_by: 'Tú',
       };
+      const existing = await AsyncStorage.getItem('reports');
+      const reports = existing ? JSON.parse(existing) : [];
 
+      const updatedReports = [newReport, ...reports];
+
+      await AsyncStorage.setItem('reports', JSON.stringify(updatedReports));
       // Simular guardado (aquí iría tu API o AsyncStorage)
       await new Promise((resolve) => setTimeout(resolve, 800));
 

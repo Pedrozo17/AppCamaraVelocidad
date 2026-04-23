@@ -13,6 +13,8 @@ import {
 import * as LocalAuthentication from 'expo-local-authentication';
 
 export default function LoginScreen({ navigation }) {
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockTime, setLockTime] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isBiometricAvailable, setIsBiometricAvailable] = useState(false);
   const [attemptCount, setAttemptCount] = useState(0);
@@ -21,6 +23,25 @@ export default function LoginScreen({ navigation }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+
+    let interval;
+
+    if (isLocked && lockTime > 0) {
+      interval = setInterval(() => {
+        setLockTime((prev) => prev - 1);
+      }, 1000);
+    }
+
+    if (lockTime === 0 && isLocked) {
+      setIsLocked(false);
+      setAttemptCount(0);
+    }
+
+    return () => clearInterval(interval);
+  }, [isLocked, lockTime]);
+
+  useEffect(() => {
+
     checkBiometricAvailability();
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -82,9 +103,16 @@ export default function LoginScreen({ navigation }) {
       if (result.success) {
         navigation.replace('Map');
       } else {
-        const newCount = attemptCount + 1;
-        setAttemptCount(newCount);
+        setAttemptCount(prev => {
+          const newCount = prev + 1;
 
+          if (newCount >= 3) {
+            setIsLocked(true);
+            setLockTime(30);
+          }
+
+          return newCount;
+        });
         // Vibración como feedback de error
         Vibration.vibrate([0, 200, 100, 200]);
         triggerShake();
@@ -92,10 +120,12 @@ export default function LoginScreen({ navigation }) {
         if (result.error === 'user_cancel') {
           // El usuario canceló voluntariamente, no mostrar error
         } else if (newCount >= 3) {
+          setIsLocked(true);
+          setLockTime(30);
+
           Alert.alert(
-            'Demasiados intentos fallidos',
-            'Has fallado la autenticación varias veces. Inténtalo de nuevo en unos minutos.',
-            [{ text: 'OK', onPress: () => setAttemptCount(0) }],
+            'Bloqueado',
+            'Demasiados intentos fallidos. Intenta en 30 segundos.'
           );
         } else {
           Alert.alert(
@@ -119,6 +149,10 @@ export default function LoginScreen({ navigation }) {
       setIsLoading(false);
     }
   };
+
+  console.log("Intentos:", attemptCount);
+  console.log("Bloqueado:", isLocked);
+  console.log("Tiempo:", lockTime);
 
   return (
     <View style={styles.container}>
@@ -145,9 +179,14 @@ export default function LoginScreen({ navigation }) {
           <TouchableOpacity
             style={[styles.authButton, !isBiometricAvailable && styles.authButtonDisabled]}
             onPress={handleAuthentication}
-            disabled={isLoading || !isBiometricAvailable}
+            disabled={isLoading || !isBiometricAvailable || isLocked}
             activeOpacity={0.85}
           >
+            {isLocked && (
+              <Text style={{ color: 'red', textAlign: 'center' }}>
+                Intenta en {lockTime}s
+              </Text>
+            )}
             {isLoading ? (
               <ActivityIndicator color="#0a0a0a" size="small" />
             ) : (

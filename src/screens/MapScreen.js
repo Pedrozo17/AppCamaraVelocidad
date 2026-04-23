@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import * as Location from 'expo-location';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Image } from 'react-native';
 
 const MOCK_REPORTS = [
   {
@@ -67,6 +69,21 @@ export default function MapScreen({ navigation, route }) {
     }
   }, [route.params?.newReport]);
 
+  useEffect(() => {
+    loadReports();
+  }, []);
+
+  const loadReports = async () => {
+    try {
+      const stored = await AsyncStorage.getItem('reports');
+      if (stored) {
+        setReports(JSON.parse(stored));
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const requestLocationPermission = async () => {
     setIsLoadingLocation(true);
     try {
@@ -120,14 +137,12 @@ export default function MapScreen({ navigation, route }) {
     }).start();
   };
 
-  const closePanel = () => {
-    Animated.timing(slideAnim, {
-      toValue: 120,
-      duration: 250,
-      useNativeDriver: true,
-    }).start(() => setSelectedReport(null));
-  };
-
+const closePanel = () => {
+  Animated.spring(slideAnim, {
+    toValue: 120,
+    useNativeDriver: true,
+  }).start(() => setSelectedReport(null));
+};
   const centerOnUser = () => {
     if (location) {
       mapRef.current?.animateToRegion({
@@ -185,7 +200,6 @@ export default function MapScreen({ navigation, route }) {
         initialRegion={defaultRegion}
         showsUserLocation={!permissionDenied}
         showsMyLocationButton={false}
-        onPress={closePanel}
       >
         {reports.map((report) => (
           <Marker
@@ -229,6 +243,12 @@ export default function MapScreen({ navigation, route }) {
               <Text style={styles.closeBtn}>✕</Text>
             </TouchableOpacity>
           </View>
+          {selectedReport.photo && (
+            <Image
+              source={{ uri: selectedReport.photo }}
+              style={{ width: '100%', height: 150, borderRadius: 10 }}
+            />
+          )}
           {selectedReport.speed_limit && (
             <View style={styles.speedBadge}>
               <Text style={styles.speedBadgeText}>🚗 {selectedReport.speed_limit} km/h</Text>

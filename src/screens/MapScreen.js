@@ -53,7 +53,6 @@ export default function MapScreen({ navigation, route }) {
   const [selectedReport, setSelectedReport] = useState(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   const [permissionDenied, setPermissionDenied] = useState(false);
-
   const mapRef = useRef(null);
   const slideAnim = useRef(new Animated.Value(120)).current;
 

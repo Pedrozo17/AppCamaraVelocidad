@@ -114,8 +114,12 @@ export default function ReportScreen({ navigation, route }) {
     setCameraActive(true);
   };
 
+  const [isTakingPhoto, setIsTakingPhoto] = useState(false);
+
   const takePhoto = async () => {
-    if (!cameraRef.current) return;
+    if (!cameraRef.current || isTakingPhoto) return; // bloquea el doble toque
+
+    setIsTakingPhoto(true);
     try {
       const photo = await cameraRef.current.takePictureAsync({ quality: 0.7 });
       if (photo) {
@@ -125,6 +129,8 @@ export default function ReportScreen({ navigation, route }) {
     } catch (error) {
       Alert.alert('Error', 'No se pudo tomar la foto. Inténtalo de nuevo.');
       console.error('Camera error:', error);
+    } finally {
+      setIsTakingPhoto(false); // siempre libera el semáforo al terminar
     }
   };
 
@@ -239,8 +245,16 @@ export default function ReportScreen({ navigation, route }) {
               <Text style={styles.guideText}>Encuadra la cámara de velocidad</Text>
             </View>
             <View style={styles.cameraBottomBar}>
-              <TouchableOpacity style={styles.shutterButton} onPress={takePhoto}>
-                <View style={styles.shutterInner} />
+              <TouchableOpacity
+                style={styles.shutterButton}
+                onPress={takePhoto}
+                disabled={isTakingPhoto}
+                activeOpacity={0.7}
+              >
+                <View style={[
+                  styles.shutterInner,
+                  isTakingPhoto && { backgroundColor: '#aaa' } // se pone gris mientras procesa
+                ]} />
               </TouchableOpacity>
             </View>
           </View>

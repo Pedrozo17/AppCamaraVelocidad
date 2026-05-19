@@ -2,19 +2,23 @@ services:
   app:
     build: .
     container_name: Appcamaravelocidad
+
     ports:
+      - "8081:8081"
       - "19000:19000"
       - "19001:19001"
       - "19002:19002"
+
     volumes:
       - .:/app
       - /app/node_modules
-    command: npm start
-    environment:
-      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
-      - CI=0
-      - EXPO_USE_STATIC=true
-      - FORCE_COLOR=true
-      - REACT_NATIVE_PACKAGER_HOSTNAME=172.20.10.2
+
     stdin_open: true
     tty: true
+
+    environment:
+      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
+      - CHOKIDAR_USEPOLLING=true
+      - REACT_NATIVE_PACKAGER_HOSTNAME=172.20.10.5
+
+    command: npx expo start --host lan --clear

@@ -1,4 +1,4 @@
-  {
+{
   "name": "appcamaravelocidad",
   "version": "1.0.0",
   "main": "index.js",
@@ -7,10 +7,10 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "jest": "jest"
+    "test": "jest"
   },
   "dependencies": {
-    "@faker-js/faker": "^10.4.0",
+    "@faker-js/faker": "^8.4.1",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/native": "^7.2.2",
     "@react-navigation/native-stack": "^7.14.11",
@@ -28,9 +28,16 @@
   },
   "private": true,
   "jest": {
-  "preset": "jest-expo",
-  "transformIgnorePatterns": [
-    "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|lucide-react-native)"
-  ]
-}
+    "preset": "jest-expo",
+    "transformIgnorePatterns": [
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|lucide-react-native)"
+    ]
+  },
+  "devDependencies": {
+    "@testing-library/react-native": "^13.3.3",
+    "babel-preset-expo": "^55.0.22",
+    "jest": "^29.7.0",
+    "jest-expo": "^55.0.18",
+    "react-test-renderer": "^19.1.0"
+  }
 }

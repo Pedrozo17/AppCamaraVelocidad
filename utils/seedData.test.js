@@ -1,5 +1,6 @@
+const { generateAdventures } = require('../seedData');
+
 describe('Pruebas en el generador de datos (generateAdventures)', () => {
-    import { generateAdventures } from "../../seedData";
 
     test('Debe generar una cantidad de pruebas exacta que se soliciten', () => {
         const total = 15;
@@ -15,4 +16,5 @@ describe('Pruebas en el generador de datos (generateAdventures)', () => {
         expect(adventure.coords).toHaveProperty('lng');
         expect(typeof adventure.coords.lat).toBe('number');
     });
+
 });
